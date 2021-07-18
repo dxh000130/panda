@@ -210,12 +210,10 @@ static int gm_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 }
 
 static int gm_usb_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_filter) {
-  UNUSED(bus_num);
-  int addr = GET_ADDR(to_filter);
+  UNUSED(to_filter);
   int usb_push = false;
 
-  usb_push |= !((addr == 0xc0) || (addr == 0xc1) || (addr == 0xc5) || (addr == 0xc7) || (addr == 0xd3) || (addr == 0xf9) || \
-      (addr == 0x18e) || (addr == 0x1c7) || (addr == 0x1ce) || (addr == 0x321) || (addr == 0x130) || (addr == 0x160));
+  usb_push |= !(bus_num == 2);
 
   return usb_push;
 }
