@@ -3,6 +3,12 @@ int default_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   return true;
 }
 
+static int default_usb_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_filter) {
+  UNUSED(bus_num);
+  UNUSED(to_filter);
+  return true;
+}
+
 // *** no output safety mode ***
 
 static void nooutput_init(int16_t param) {
@@ -31,6 +37,7 @@ static int default_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
 const safety_hooks nooutput_hooks = {
   .init = nooutput_init,
+  .usb = default_usb_hook,
   .rx = default_rx_hook,
   .tx = nooutput_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
@@ -59,6 +66,7 @@ static int alloutput_tx_lin_hook(int lin_num, uint8_t *data, int len) {
 
 const safety_hooks alloutput_hooks = {
   .init = alloutput_init,
+  .usb = default_usb_hook,
   .rx = default_rx_hook,
   .tx = alloutput_tx_hook,
   .tx_lin = alloutput_tx_lin_hook,

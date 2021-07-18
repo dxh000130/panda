@@ -322,6 +322,7 @@ static int subaru_legacy_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) 
 
 const safety_hooks subaru_hooks = {
   .init = nooutput_init,
+  .usb = default_usb_hook,
   .rx = subaru_rx_hook,
   .tx = subaru_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
@@ -332,6 +333,7 @@ const safety_hooks subaru_hooks = {
 
 const safety_hooks subaru_legacy_hooks = {
   .init = nooutput_init,
+  .usb = default_usb_hook,
   .rx = subaru_legacy_rx_hook,
   .tx = subaru_legacy_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

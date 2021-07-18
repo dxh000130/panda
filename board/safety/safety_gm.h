@@ -212,6 +212,7 @@ static int gm_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
 const safety_hooks gm_hooks = {
   .init = nooutput_init,
+  .usb = default_usb_hook,
   .rx = gm_rx_hook,
   .tx = gm_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

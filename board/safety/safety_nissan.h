@@ -198,6 +198,7 @@ static void nissan_init(int16_t param) {
 
 const safety_hooks nissan_hooks = {
   .init = nissan_init,
+  .usb = default_usb_hook,
   .rx = nissan_rx_hook,
   .tx = nissan_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

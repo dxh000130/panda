@@ -192,6 +192,7 @@ static void mazda_init(int16_t param) {
 
 const safety_hooks mazda_hooks = {
   .init = mazda_init,
+  .usb = default_usb_hook,
   .rx = mazda_rx_hook,
   .tx = mazda_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

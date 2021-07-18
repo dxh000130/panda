@@ -279,6 +279,7 @@ static int toyota_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
 const safety_hooks toyota_hooks = {
   .init = toyota_init,
+  .usb = default_usb_hook,
   .rx = toyota_rx_hook,
   .tx = toyota_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

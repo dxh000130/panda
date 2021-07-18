@@ -36,6 +36,7 @@ static int gm_ascm_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
 const safety_hooks gm_ascm_hooks = {
   .init = nooutput_init,
+  .usb = default_usb_hook,
   .rx = default_rx_hook,
   .tx = alloutput_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

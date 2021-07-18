@@ -287,6 +287,7 @@ static void hyundai_legacy_init(int16_t param) {
 
 const safety_hooks hyundai_hooks = {
   .init = hyundai_init,
+  .usb = default_usb_hook,
   .rx = hyundai_rx_hook,
   .tx = hyundai_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
@@ -297,6 +298,7 @@ const safety_hooks hyundai_hooks = {
 
 const safety_hooks hyundai_legacy_hooks = {
   .init = hyundai_legacy_init,
+  .usb = default_usb_hook,
   .rx = hyundai_rx_hook,
   .tx = hyundai_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

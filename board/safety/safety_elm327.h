@@ -36,6 +36,7 @@ static int elm327_tx_lin_hook(int lin_num, uint8_t *data, int len) {
 // If current_board->has_obd and safety_param == 0, bus 1 is multiplexed to the OBD-II port
 const safety_hooks elm327_hooks = {
   .init = nooutput_init,
+  .usb = default_usb_hook,
   .rx = default_rx_hook,
   .tx = elm327_tx_hook,
   .tx_lin = elm327_tx_lin_hook,

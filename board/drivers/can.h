@@ -411,11 +411,13 @@ void can_rx(uint8_t can_number) {
       can_send(&to_send, bus_fwd_num, true);
     }
 
+    // panda internal processing
     can_rx_errs += safety_rx_hook(&to_push) ? 0U : 1U;
     ignition_can_hook(&to_push);
-
     current_board->set_led(LED_BLUE, true);
-    can_send_errs += can_push(&can_rx_q, &to_push) ? 0U : 1U;
+
+    // push interesting traffic to USB
+    if(safety_usb_hook(bus_number, &to_push)) can_send_errs += can_push(&can_rx_q, &to_push) ? 0U : 1U;
 
     // next
     CAN->RF0R |= CAN_RF0R_RFOM0;

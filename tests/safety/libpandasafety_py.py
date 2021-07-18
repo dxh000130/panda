@@ -60,6 +60,7 @@ void set_timer(uint32_t t);
 int safety_rx_hook(CAN_FIFOMailBox_TypeDef *to_send);
 int safety_tx_hook(CAN_FIFOMailBox_TypeDef *to_push);
 int safety_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd);
+int safety_usb_hook(CAN_FIFOMailBox_TypeDef *to_filter);
 int set_safety_hooks(uint16_t  mode, int16_t param);
 
 void init_tests(void);

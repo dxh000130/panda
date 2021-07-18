@@ -7,15 +7,29 @@ const int VOLKSWAGEN_MAX_RATE_DOWN = 10;            // 5.0 Nm/s RoC limit (EPS r
 const int VOLKSWAGEN_DRIVER_TORQUE_ALLOWANCE = 80;
 const int VOLKSWAGEN_DRIVER_TORQUE_FACTOR = 3;
 
-// Safety-relevant CAN messages for the Volkswagen MQB platform
-#define MSG_ESP_19      0x0B2   // RX from ABS, for wheel speeds
-#define MSG_LH_EPS_03   0x09F   // RX from EPS, for driver steering torque
-#define MSG_ESP_05      0x106   // RX from ABS, for brake switch state
-#define MSG_TSK_06      0x120   // RX from ECU, for ACC status from drivetrain coordinator
-#define MSG_MOTOR_20    0x121   // RX from ECU, for driver throttle input
-#define MSG_HCA_01      0x126   // TX by OP, Heading Control Assist steering torque
-#define MSG_GRA_ACC_01  0x12B   // TX by OP, ACC control buttons for cancel/resume
-#define MSG_LDW_02      0x397   // TX by OP, Lane line recognition and text alerts
+// openpilot-relevant CAN messages for the Volkswagen MQB platform
+#define MSG_LWI_01          0x086  // RX from EPS, for steering angle and rate
+#define MSG_LH_EPS_03       0x09F  // RX from EPS, for driver steering torque
+#define MSG_GETRIEBE_11     0x0AD  // RX from auto transmission, gear selector position
+#define MSG_ESP_19          0x0B2  // RX from ABS, for wheel speeds
+#define MSG_ESP_21          0x0FD  // RX from ABS, for stability control enabled/disabled
+#define MSG_ESP_05          0x106  // RX from ABS, for brake switch state
+#define MSG_ESP_02          0x101  // RX from ABS, for yaw rate
+#define MSG_TSK_06          0x120  // RX from ECU, for ACC status from drivetrain coordinator
+#define MSG_MOTOR_20        0x121  // RX from ECU, for driver throttle input
+#define MSG_HCA_01          0x126  // TX by OP, Heading Control Assist steering torque
+#define MSG_GRA_ACC_01      0x12B  // RX from CAN gateway and TX by OP, ACC control buttons for cancel/resume
+#define MSG_EV_GEARSHIFT    0x187  // RX from ???, BEV gear selector position
+#define MSG_LDW_02          0x397  // RX from LKAS camera and TX by OP, lane line recognition and text alerts
+#define MSG_KOMBI_01        0x30B  // RX from instrument cluster, handbrake status
+#define MSG_BLINKMODI_02    0x366  // RX from BCM, turn signal states
+#define MSG_MOTOR_14        0x3BE  // RX from ECU, for clutch pressed switch
+#define MSG_GATEWAY_72      0x3DB  // RX from CAN gateway, door open/closed and reverse light
+#define MSG_AIRBAG_02       0x520  // RX from airbag module, seatbelt fastened status
+#define MSG_EINHEITEN_01    0x643  // RX from ???, display units preferences
+
+const CanMsg VOLKSWAGEN_MQB_USB_MSGS[] = {{MSG_LWI_01, 0, 8}, {MSG_LH_EPS_03, 0, 8}};
+const int VOLKSWAGEN_MQB_USB_MSGS_LEN = sizeof(VOLKSWAGEN_MQB_USB_MSGS) / sizeof(VOLKSWAGEN_MQB_USB_MSGS[0]);
 
 // Transmit of GRA_ACC_01 is allowed on bus 0 and 2 to keep compatibility with gateway and camera integration
 const CanMsg VOLKSWAGEN_MQB_TX_MSGS[] = {{MSG_HCA_01, 0, 8}, {MSG_GRA_ACC_01, 0, 8}, {MSG_GRA_ACC_01, 2, 8}, {MSG_LDW_02, 0, 8}};
@@ -383,9 +397,23 @@ static int volkswagen_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   return bus_fwd;
 }
 
+static int volkswagen_mqb_usb_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_filter) {
+  UNUSED(bus_num);
+  int addr = GET_ADDR(to_filter);
+  int usb_push = false;
+
+  // usb_push |= msg_allowed(to_filter, VOLKSWAGEN_MQB_USB_MSGS, VOLKSWAGEN_MQB_USB_MSGS_LEN);
+  // usb_push |= ((bus_num == 1) || (bus_num == 128) || (bus_num == 129) || (bus_num == 130)); // Object fusion bus, copy of TX
+  // Hax test
+  usb_push |= !((addr == 0x31b) || (addr == 0x2a7) || (addr == 0x11b) || (addr == 0x2b7) || (addr == 0x2a7));
+
+  return usb_push;
+}
+
 // Volkswagen MQB platform
 const safety_hooks volkswagen_mqb_hooks = {
   .init = volkswagen_mqb_init,
+  .usb = volkswagen_mqb_usb_hook,
   .rx = volkswagen_mqb_rx_hook,
   .tx = volkswagen_mqb_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
@@ -397,6 +425,7 @@ const safety_hooks volkswagen_mqb_hooks = {
 // Volkswagen PQ35/PQ46/NMS platforms
 const safety_hooks volkswagen_pq_hooks = {
   .init = volkswagen_pq_init,
+  .usb = default_usb_hook,
   .rx = volkswagen_pq_rx_hook,
   .tx = volkswagen_pq_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

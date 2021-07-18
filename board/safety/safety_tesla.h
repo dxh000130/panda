@@ -197,6 +197,7 @@ static void tesla_init(int16_t param) {
 
 const safety_hooks tesla_hooks = {
   .init = tesla_init,
+  .usb = default_usb_hook,
   .rx = tesla_rx_hook,
   .tx = tesla_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

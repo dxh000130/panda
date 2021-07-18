@@ -387,6 +387,7 @@ static int honda_bosch_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
 const safety_hooks honda_nidec_hooks = {
   .init = honda_nidec_init,
+  .usb = default_usb_hook,
   .rx = honda_rx_hook,
   .tx = honda_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
@@ -397,6 +398,7 @@ const safety_hooks honda_nidec_hooks = {
 
 const safety_hooks honda_bosch_giraffe_hooks = {
   .init = honda_bosch_giraffe_init,
+  .usb = default_usb_hook,
   .rx = honda_rx_hook,
   .tx = honda_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
@@ -407,6 +409,7 @@ const safety_hooks honda_bosch_giraffe_hooks = {
 
 const safety_hooks honda_bosch_harness_hooks = {
   .init = honda_bosch_harness_init,
+  .usb = default_usb_hook,
   .rx = honda_rx_hook,
   .tx = honda_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

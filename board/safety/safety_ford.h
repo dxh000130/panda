@@ -109,6 +109,7 @@ static int ford_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
 const safety_hooks ford_hooks = {
   .init = nooutput_init,
+  .usb = default_usb_hook,
   .rx = ford_rx_hook,
   .tx = ford_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,

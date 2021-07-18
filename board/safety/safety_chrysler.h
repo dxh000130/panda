@@ -206,6 +206,7 @@ static int chrysler_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
 const safety_hooks chrysler_hooks = {
   .init = nooutput_init,
+  .usb = default_usb_hook,
   .rx = chrysler_rx_hook,
   .tx = chrysler_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
