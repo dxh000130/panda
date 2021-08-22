@@ -61,7 +61,8 @@ const uint16_t VOLKSWAGEN_PARAM_LONG = 1;
 bool volkswagen_longitudinal = false;
 int volkswagen_torque_msg = 0;
 int volkswagen_lane_msg = 0;
-int volkswagen_acc_accel_msg = 0;
+int volkswagen_acc_accel_msg_1 = 0;
+int volkswagen_acc_accel_msg_2 = 0;
 int volkswagen_acc_hud_msg = 0;
 uint8_t volkswagen_crc8_lut_8h2f[256]; // Static lookup table for CRC8 poly 0x2F, aka 8H2F/AUTOSAR
 
@@ -135,7 +136,8 @@ static void volkswagen_mqb_init(int16_t param) {
   volkswagen_longitudinal = GET_FLAG(param, VOLKSWAGEN_PARAM_LONG);
   volkswagen_torque_msg = MSG_HCA_01;
   volkswagen_lane_msg = MSG_LDW_02;
-  volkswagen_acc_accel_msg = MSG_ACC_06;
+  volkswagen_acc_accel_msg_1 = MSG_ACC_06;
+  volkswagen_acc_accel_msg_2 = MSG_ACC_07;
   volkswagen_acc_hud_msg = MSG_ACC_02;
   gen_crc_lookup_table(0x2F, volkswagen_crc8_lut_8h2f);
 }
@@ -433,7 +435,8 @@ static int volkswagen_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
         if ((addr == volkswagen_torque_msg) || (addr == volkswagen_lane_msg)) {
           // OP takes control of the Heading Control Assist and Lane Departure Warning messages from the camera
           bus_fwd = -1;
-        } else if (volkswagen_longitudinal && ((addr == volkswagen_acc_accel_msg) || (addr == volkswagen_acc_hud_msg))) {
+        } else if (volkswagen_longitudinal && ((addr == volkswagen_acc_accel_msg_1) ||
+                  (addr == volkswagen_acc_accel_msg_2) || (addr == volkswagen_acc_hud_msg))) {
           // If longitudinal control is enabled, OP takes control of ACC accel/braking and HUD messaging
           bus_fwd = -1;
         } else {
