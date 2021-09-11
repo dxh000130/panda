@@ -9,11 +9,11 @@ const int STELLANTIS_STANDSTILL_THRSLD = 10;  // about 1m/s
 const CanMsg STELLANTIS_TX_MSGS[] = {{166, 0, 8}, {250, 0, 8}}; // {177, 0, 8}};  // 177 is for long
 
 AddrCheckStruct stellantis_addr_checks[] = {
-  {.msg = {{35, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U, { 0 }, { 0 }}},  // EPS module
-  {.msg = {{139, 0, 8, .check_checksum = false, .max_counter = 0U, .expected_timestep = 20000U, { 0 }, { 0 }}},  // wheel speeds
-  {.msg = {{153, 0, 8, .check_checksum = false, .max_counter = 15U, .expected_timestep = 20000U, { 0 }, { 0 }}},  // forward cam ACC
-  {.msg = {{129, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U, { 0 }, { 0 }}},  // gas pedal
-  {.msg = {{121, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U, { 0 }, { 0 }}},  // brake pressed
+  {.msg = {{35, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}, { 0 }, { 0 }}},  // EPS module
+  {.msg = {{139, 0, 8, .check_checksum = false, .max_counter = 0U, .expected_timestep = 20000U}, { 0 }, { 0 }}},  // wheel speeds
+  {.msg = {{153, 0, 8, .check_checksum = false, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},  // forward cam ACC
+  {.msg = {{129, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U}, { 0 }, { 0 }}},  // gas pedal
+  {.msg = {{121, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U}, { 0 }, { 0 }}},  // brake pressed
 };
 #define STELLANTIS_ADDR_CHECK_LEN (sizeof(stellantis_addr_checks) / sizeof(stellantis_addr_checks[0]))
 addr_checks stellantis_rx_checks = {stellantis_addr_checks, STELLANTIS_ADDR_CHECK_LEN};
