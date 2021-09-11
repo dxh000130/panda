@@ -1,29 +1,29 @@
-const int RAM_MAX_STEER = 261;
-const int RAM_MAX_RT_DELTA = 112;        // max delta torque allowed for real time checks
-const uint32_t RAM_RT_INTERVAL = 250000;  // 250ms between real time checks
-const int RAM_MAX_RATE_UP = 10;
-const int RAM_MAX_RATE_DOWN = 50;
-const int RAM_MAX_TORQUE_ERROR = 240;    // max torque cmd in excess of torque motor up from 240
-const int RAM_GAS_THRSLD = 30;  // 7% more than 2m/s
-const int RAM_STANDSTILL_THRSLD = 10;  // about 1m/s
-const CanMsg RAM_TX_MSGS[] = {{166, 0, 8}, {250, 0, 8}}; // {177, 0, 8}};  // 177 is for long
+const int STELLANTIS_MAX_STEER = 261;
+const int STELLANTIS_MAX_RT_DELTA = 112;        // max delta torque allowed for real time checks
+const uint32_t STELLANTIS_RT_INTERVAL = 250000;  // 250ms between real time checks
+const int STELLANTIS_MAX_RATE_UP = 10;
+const int STELLANTIS_MAX_RATE_DOWN = 50;
+const int STELLANTIS_MAX_TORQUE_ERROR = 240;    // max torque cmd in excess of torque motor up from 240
+const int STELLANTIS_GAS_THRSLD = 30;  // 7% more than 2m/s
+const int STELLANTIS_STANDSTILL_THRSLD = 10;  // about 1m/s
+const CanMsg STELLANTIS_TX_MSGS[] = {{166, 0, 8}, {250, 0, 8}}; // {177, 0, 8}};  // 177 is for long
 
-AddrCheckStruct ram_rx_checks[] = {
+AddrCheckStruct stellantis_rx_checks[] = {
   {.msg = {{35, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}}},  // EPS module
   {.msg = {{139, 0, 8, .check_checksum = false, .max_counter = 0U, .expected_timestep = 20000U}}},  // wheel speeds
   {.msg = {{153, 0, 8, .check_checksum = false, .max_counter = 15U, .expected_timestep = 20000U}}},  // forward cam ACC
   {.msg = {{129, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U}}},  // gas pedal
   {.msg = {{121, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U}}},  // brake pressed
 };
-#define RAM_ADDR_CHECK_LEN (sizeof(ram_addr_checks) / sizeof(ram_addr_checks[0]))
-addr_checks ram_rx_checks = {ram_addr_checks, RAM_ADDR_CHECK_LEN};
+#define STELLANTIS_ADDR_CHECK_LEN (sizeof(stellantis_addr_checks) / sizeof(stellantis_addr_checks[0]))
+addr_checks stellantis_rx_checks = {stellantis_addr_checks, STELLANTIS_ADDR_CHECK_LEN};
 
-static uint8_t ram_get_checksum(CAN_FIFOMailBox_TypeDef *to_push) {
+static uint8_t stellantis_get_checksum(CAN_FIFOMailBox_TypeDef *to_push) {
   int checksum_byte = GET_LEN(to_push) - 1;
   return (uint8_t)(GET_BYTE(to_push, checksum_byte));
 }
 
-static uint8_t ram_compute_checksum(CAN_FIFOMailBox_TypeDef *to_push) {
+static uint8_t stellantis_compute_checksum(CAN_FIFOMailBox_TypeDef *to_push) {
   /* This function does not want the checksum byte in the input data.
   jeep ram canbus checksum from http://illmatics.com/Remote%20Car%20Hacking.pdf */
   uint8_t checksum = 0xFF;
@@ -56,16 +56,16 @@ static uint8_t ram_compute_checksum(CAN_FIFOMailBox_TypeDef *to_push) {
   return ~checksum;
 }
 
-static uint8_t ram_get_counter(CAN_FIFOMailBox_TypeDef *to_push) {
+static uint8_t stellantis_get_counter(CAN_FIFOMailBox_TypeDef *to_push) {
   // Well defined counter only for 8 bytes messages
   return (uint8_t)(GET_BYTE(to_push, 6) >> 4);
 }
 
-static int ram_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
+static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
-  bool valid = addr_safety_check(to_push, ram_rx_checks, RAM_RX_CHECK_LEN,
-                                 ram_get_checksum, ram_compute_checksum,
-                                 ram_get_counter);
+  bool valid = addr_safety_check(to_push, stellantis_rx_checks, STELLANTIS_RX_CHECK_LEN,
+                                 stellantis_get_checksum, stellantis_compute_checksum,
+                                 stellantis_get_counter);
 
   if (valid && (GET_BUS(to_push) == 0)) {
     int addr = GET_ADDR(to_push);
@@ -95,12 +95,12 @@ static int ram_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
       int speed_l = (GET_BYTE(to_push, 0) << 4) + (GET_BYTE(to_push, 1) >> 4);
       int speed_r = (GET_BYTE(to_push, 2) << 4) + (GET_BYTE(to_push, 3) >> 4);
       vehicle_speed = (speed_l + speed_r) / 2;
-      vehicle_moving = (int)vehicle_speed > RAM_STANDSTILL_THRSLD;
+      vehicle_moving = (int)vehicle_speed > STELLANTIS_STANDSTILL_THRSLD;
     }
 
     // exit controls on rising edge of gas press
     if (addr == 129) {
-      gas_pressed = ((GET_BYTE(to_push, 5) & 0x7F) != 0) && ((int)vehicle_speed > RAM_GAS_THRSLD);
+      gas_pressed = ((GET_BYTE(to_push, 5) & 0x7F) != 0) && ((int)vehicle_speed > STELLANTIS_GAS_THRSLD);
     }
 
     // exit controls on rising edge of brake press
@@ -117,12 +117,12 @@ static int ram_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
   return valid;
 }
 
-static int ram_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
+static int stellantis_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
   int tx = 1;
   int addr = GET_ADDR(to_send);
 
-  if (!msg_allowed(to_send, RAM_TX_MSGS, sizeof(RAM_TX_MSGS) / sizeof(RAM_TX_MSGS[0]))) {
+  if (!msg_allowed(to_send, STELLANTIS_TX_MSGS, sizeof(STELLANTIS_TX_MSGS) / sizeof(STELLANTIS_TX_MSGS[0]))) {
     tx = 0;  // for dev
   }
 
@@ -139,21 +139,21 @@ static int ram_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     if (controls_allowed) {
 
       // *** global torque limit check ***
-      violation |= max_limit_check(desired_torque, RAM_MAX_STEER, -RAM_MAX_STEER);
+      violation |= max_limit_check(desired_torque, STELLANTIS_MAX_STEER, -STELLANTIS_MAX_STEER);
 
       // *** torque rate limit check ***
       violation |= dist_to_meas_check(desired_torque, desired_torque_last,
-        &torque_meas, RAM_MAX_RATE_UP, RAM_MAX_RATE_DOWN, RAM_MAX_TORQUE_ERROR);
+        &torque_meas, STELLANTIS_MAX_RATE_UP, STELLANTIS_MAX_RATE_DOWN, STELLANTIS_MAX_TORQUE_ERROR);
 
       // used next time
       desired_torque_last = desired_torque;
 
       // *** torque real time rate limit check ***
-      violation |= rt_rate_limit_check(desired_torque, rt_torque_last, RAM_MAX_RT_DELTA);
+      violation |= rt_rate_limit_check(desired_torque, rt_torque_last, STELLANTIS_MAX_RT_DELTA);
 
       // every RT_INTERVAL set the new limits
       uint32_t ts_elapsed = get_ts_elapsed(ts, ts_last);
-      if (ts_elapsed > RAM_RT_INTERVAL) {
+      if (ts_elapsed > STELLANTIS_RT_INTERVAL) {
         rt_torque_last = desired_torque;
         ts_last = ts;
       }
@@ -186,7 +186,7 @@ static int ram_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   return tx;
 }
 
-static int ram_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
+static int stellantis_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
 
   int bus_fwd = -1;
   int addr = GET_ADDR(to_fwd);
@@ -204,17 +204,17 @@ static int ram_fwd_hook(int bus_num, CAN_FIFOMailBox_TypeDef *to_fwd) {
   return bus_fwd;
 }
 
-static const addr_checks* ram_init(int16_t param) {
+static const addr_checks* stellantis_init(int16_t param) {
   UNUSED(param);
   controls_allowed = false;
   relay_malfunction_reset();
-  return &ram_rx_checks;
+  return &stellantis_rx_checks;
 }
 
-const safety_hooks ram_hooks = {
-  .init = ram_init,
-  .rx = ram_rx_hook,
-  .tx = ram_tx_hook,
+const safety_hooks stellantis_hooks = {
+  .init = stellantis_init,
+  .rx = stellantis_rx_hook,
+  .tx = stellantis_tx_hook,
   .tx_lin = nooutput_tx_lin_hook,
-  .fwd = ram_fwd_hook,
+  .fwd = stellantis_fwd_hook,
 };
