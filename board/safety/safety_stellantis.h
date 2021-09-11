@@ -63,9 +63,8 @@ static uint8_t stellantis_get_counter(CAN_FIFOMailBox_TypeDef *to_push) {
 
 static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
-  bool valid = addr_safety_check(to_push, stellantis_rx_checks, STELLANTIS_RX_CHECK_LEN,
-                                 stellantis_get_checksum, stellantis_compute_checksum,
-                                 stellantis_get_counter);
+  bool valid = addr_safety_check(to_push, &stellantis_rx_checks,
+                                 stellantis_get_checksum, stellantis_compute_checksum, stellantis_get_counter);
 
   if (valid && (GET_BUS(to_push) == 0)) {
     int addr = GET_ADDR(to_push);
