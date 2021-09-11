@@ -9,11 +9,11 @@ const int STELLANTIS_STANDSTILL_THRSLD = 10;  // about 1m/s
 const CanMsg STELLANTIS_TX_MSGS[] = {{166, 0, 8}, {250, 0, 8}}; // {177, 0, 8}};  // 177 is for long
 
 AddrCheckStruct stellantis_addr_checks[] = {
-  {.msg = {{35, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}}},  // EPS module
-  {.msg = {{139, 0, 8, .check_checksum = false, .max_counter = 0U, .expected_timestep = 20000U}}},  // wheel speeds
-  {.msg = {{153, 0, 8, .check_checksum = false, .max_counter = 15U, .expected_timestep = 20000U}}},  // forward cam ACC
-  {.msg = {{129, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U}}},  // gas pedal
-  {.msg = {{121, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U}}},  // brake pressed
+  {.msg = {{35, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U, { 0 }, { 0 }}},  // EPS module
+  {.msg = {{139, 0, 8, .check_checksum = false, .max_counter = 0U, .expected_timestep = 20000U, { 0 }, { 0 }}},  // wheel speeds
+  {.msg = {{153, 0, 8, .check_checksum = false, .max_counter = 15U, .expected_timestep = 20000U, { 0 }, { 0 }}},  // forward cam ACC
+  {.msg = {{129, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U, { 0 }, { 0 }}},  // gas pedal
+  {.msg = {{121, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U, { 0 }, { 0 }}},  // brake pressed
 };
 #define STELLANTIS_ADDR_CHECK_LEN (sizeof(stellantis_addr_checks) / sizeof(stellantis_addr_checks[0]))
 addr_checks stellantis_rx_checks = {stellantis_addr_checks, STELLANTIS_ADDR_CHECK_LEN};
@@ -26,10 +26,10 @@ static uint8_t stellantis_get_checksum(CAN_FIFOMailBox_TypeDef *to_push) {
 static uint8_t stellantis_compute_checksum(CAN_FIFOMailBox_TypeDef *to_push) {
   /* This function does not want the checksum byte in the input data.
   jeep ram canbus checksum from http://illmatics.com/Remote%20Car%20Hacking.pdf */
-  uint8_t checksum = 0xFF;
+  uint8_t checksum = 0xFFU;
   int len = GET_LEN(to_push);
   for (int j = 0; j < (len - 1); j++) {
-    uint8_t shift = 0x80;
+    uint8_t shift = 0x80U;
     uint8_t curr = (uint8_t)GET_BYTE(to_push, j);
     for (int i=0; i<8; i++) {
       uint8_t bit_sum = curr & shift;
