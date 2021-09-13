@@ -8,7 +8,6 @@ const int STELLANTIS_DRIVER_TORQUE_ALLOWANCE = 80;
 const int STELLANTIS_DRIVER_TORQUE_FACTOR = 3;
 // TODO: why do we need gas/standstill thresholds? autoresume spam not working yet maybe?
 const int STELLANTIS_GAS_THRSLD = 30;               // 7% more than 2m/s
-const int STELLANTIS_STANDSTILL_THRSLD = 10;        // about 1m/s
 
 // Safety-relevant CAN messages for the Stellantis 5th gen RAM (DT) platform
 #define MSG_EPS_1           0x23  // EPS steering angle and assist motor torque
@@ -107,10 +106,11 @@ static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
     // update speed
     if (addr == MSG_WHEEL_SPEEDS) {
-      int speed_l = (GET_BYTE(to_push, 0) << 4) + (GET_BYTE(to_push, 1) >> 4);
-      int speed_r = (GET_BYTE(to_push, 2) << 4) + (GET_BYTE(to_push, 3) >> 4);
-      vehicle_speed = (speed_l + speed_r) / 2;
-      vehicle_moving = (int)vehicle_speed > STELLANTIS_STANDSTILL_THRSLD;
+      int wheel_speed_fl = (GET_BYTE(to_push, 4) << 8) | (GET_BYTE(to_push, 5);
+      int wheel_speed_fr = (GET_BYTE(to_push, 6) << 8) | (GET_BYTE(to_push, 7);
+      // Check for average front speed in excess of 0.3m/s, 1.08km/h
+      // DBC speed scale 0.02: 0.3m/s = 15, sum both wheels to compare
+      vehicle_moving = (wheel_speed_fl + wheel_speed_fr) > 30;
     }
 
     // exit controls on rising edge of gas press
