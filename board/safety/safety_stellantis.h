@@ -83,7 +83,7 @@ static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
     // Measured eps torque
     if (addr == MSG_EPS_2) {
-      int torque_driver_new = (((GET_BYTE(to_push, 0) & 0x15U) << 8) | GET_BYTE(to_push, 1)) + 1024U;
+      int torque_driver_new = (((GET_BYTE(to_push, 0) & 0x15U) << 8) | GET_BYTE(to_push, 1)) - 3072U;
       torque_driver_new = to_signed(torque_driver_new, 12);
 
       // update array of samples
