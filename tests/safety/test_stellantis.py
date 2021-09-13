@@ -26,7 +26,7 @@ MSG_ACC_BUTTONS = 0xB1    # Cruise control buttons
 MSG_DASM_HUD = 0xFA       # LKAS HUD and auto headlight control from DASM
 
 class TestStellantisSafety(common.PandaSafetyTest):
-  cnt_eps_1 = 0
+  cnt_eps_2 = 0
   cnt_abs_1 = 0
   cnt_wheel_speeds = 0
   cnt_dasm_acc = 0
