@@ -193,7 +193,7 @@ static int stellantis_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
   // FORCE CANCEL: only the cancel button press is allowed
   if ((addr == MSG_ACC_BUTTONS) && !controls_allowed) {
-    if ((GET_BYTE(to_send, 2) & 0x14) != 0) {
+    if ((GET_BYTE(to_send, 0) & 0x14) != 0) {
       tx = 0;
     }
   }
