@@ -91,16 +91,6 @@ class TestStellantisSafety(common.PandaSafetyTest):
     self.__class__.cnt_acc_buttons += 1
     return self.packer.make_can_msg_panda("ACC_BUTTONS", 2, values)
 
-  def test_steer_safety_check(self):
-    for enabled in [0, 1]:
-      for t in range(-500, 500):
-        self.safety.set_controls_allowed(enabled)
-        self._set_prev_torque(t)
-        if abs(t) > MAX_STEER or (not enabled and abs(t) > 0):
-          self.assertFalse(self._tx(self._torque_msg(t)))
-        else:
-          self.assertTrue(self._tx(self._torque_msg(t)), msg=f"enabled: {enabled}, t: {t}")
-
   def test_spam_cancel_safety_check(self):
     self.safety.set_controls_allowed(0)
     self.assertTrue(self._tx(self._acc_buttons_msg(cancel=1)))
@@ -185,6 +175,25 @@ class TestStellantisSafety(common.PandaSafetyTest):
       self.safety.set_timer(RT_INTERVAL + 1)
       self.assertTrue(self._tx(self._torque_msg(sign * (MAX_RT_DELTA - 1))))
       self.assertTrue(self._tx(self._torque_msg(sign * (MAX_RT_DELTA + 1))))
+
+  def test_torque_measurements(self):
+    self._rx(self._eps_2_msg(50))
+    self._rx(self._eps_2_msg(-50))
+    self._rx(self._eps_2_msg(0))
+    self._rx(self._eps_2_msg(0))
+    self._rx(self._eps_2_msg(0))
+    self._rx(self._eps_2_msg(0))
+
+    self.assertEqual(-50, self.safety.get_torque_driver_min())
+    self.assertEqual(50, self.safety.get_torque_driver_max())
+
+    self._rx(self._eps_2_msg(0))
+    self.assertEqual(0, self.safety.get_torque_driver_max())
+    self.assertEqual(-50, self.safety.get_torque_driver_min())
+
+    self._rx(self._eps_2_msg(0))
+    self.assertEqual(0, self.safety.get_torque_driver_max())
+    self.assertEqual(0, self.safety.get_torque_driver_min())
 
   def test_rx_hook(self):
     # checksum checks
