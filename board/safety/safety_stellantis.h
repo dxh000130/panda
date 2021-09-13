@@ -10,8 +10,7 @@ const int STELLANTIS_DRIVER_TORQUE_FACTOR = 3;
 const int STELLANTIS_GAS_THRSLD = 30;               // 7% more than 2m/s
 
 // Safety-relevant CAN messages for the Stellantis 5th gen RAM (DT) platform
-#define MSG_EPS_1           0x23  // EPS steering angle and assist motor torque
-#define MSG_EPS_2           0x49  // EPS driver input torque and angle-change rate
+#define MSG_EPS_2           0x31  // EPS driver input torque and angle-change rate
 #define MSG_ABS_1           0x79  // Brake pedal and pressure
 #define MSG_TPS_1           0x81  // Throttle position sensor
 #define MSG_WHEEL_SPEEDS    0x8B  // ABS wheel speeds
@@ -23,7 +22,7 @@ const int STELLANTIS_GAS_THRSLD = 30;               // 7% more than 2m/s
 const CanMsg STELLANTIS_TX_MSGS[] = {{MSG_DASM_LKAS, 0, 8}, {MSG_DASM_HUD, 0, 8}, {MSG_ACC_BUTTONS, 2, 8}};
 
 AddrCheckStruct stellantis_addr_checks[] = {
-  {.msg = {{MSG_EPS_1, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}, { 0 }, { 0 }}},
+  {.msg = {{MSG_EPS_2, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}, { 0 }, { 0 }}},
   {.msg = {{MSG_ABS_1, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{MSG_TPS_1, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{MSG_WHEEL_SPEEDS, 0, 8, .check_checksum = false, .max_counter = 0U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
