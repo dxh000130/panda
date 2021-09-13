@@ -93,7 +93,7 @@ static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
     // enter controls on rising edge of ACC, exit controls on ACC off
     if (addr == MSG_DASM_ACC) {
-      int cruise_engaged = ((GET_BYTE(to_push, 2) & 0x38) >> 3) == 7;
+      int cruise_engaged = ((GET_BYTE(to_push, 2) >> 4) & 0x3U) == 0x3U;
       if (cruise_engaged && !cruise_engaged_prev) {
         controls_allowed = 1;
       }
