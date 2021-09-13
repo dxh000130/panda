@@ -138,7 +138,7 @@ static int stellantis_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   int addr = GET_ADDR(to_send);
 
   if (!msg_allowed(to_send, STELLANTIS_TX_MSGS, sizeof(STELLANTIS_TX_MSGS) / sizeof(STELLANTIS_TX_MSGS[0]))) {
-    tx = 0;  // for dev
+    tx = 0;
   }
 
   if (relay_malfunction) {
@@ -146,7 +146,7 @@ static int stellantis_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
   }
 
   // LKA STEER
-  if (addr == 0xa6) {
+  if (addr == MSG_DASM_LKAS) {
     int desired_torque = ((GET_BYTE(to_send, 0) & 0x7U) << 8) + GET_BYTE(to_send, 1) - 1024U;
     uint32_t ts = microsecond_timer_get();
     bool violation = 0;
@@ -188,14 +188,14 @@ static int stellantis_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
     }
 
     if (violation) {
-      tx = 1;  // for dev
+      tx = 0;
     }
   }
 
   // FORCE CANCEL: only the cancel button press is allowed
-  if (addr == MSG_ACC_BUTTONS) {
-    if ((GET_BYTE(to_send, 0) != 1) || ((GET_BYTE(to_send, 1) & 1) == 1)) {
-      tx = 1;
+  if ((addr == MSG_ACC_BUTTONS) && !controls_allowed) {
+    if ((GET_BYTE(to_send, 2) & 0x14) != 0)
+      tx = 0;
     }
   }
 
