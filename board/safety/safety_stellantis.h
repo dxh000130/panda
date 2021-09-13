@@ -6,8 +6,6 @@ const int STELLANTIS_MAX_RATE_UP = 5;
 const int STELLANTIS_MAX_RATE_DOWN = 10;
 const int STELLANTIS_DRIVER_TORQUE_ALLOWANCE = 80;
 const int STELLANTIS_DRIVER_TORQUE_FACTOR = 3;
-// TODO: why do we need gas/standstill thresholds? autoresume spam not working yet maybe?
-const int STELLANTIS_GAS_THRSLD = 30;               // 7% more than 2m/s
 
 // Safety-relevant CAN messages for the Stellantis 5th gen RAM (DT) platform
 #define MSG_EPS_2           0x31  // EPS driver input torque and angle-change rate
@@ -114,7 +112,7 @@ static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
     // exit controls on rising edge of gas press
     if (addr == MSG_TPS_1) {
-      gas_pressed = ((GET_BYTE(to_push, 5) & 0x7F) != 0) && ((int)vehicle_speed > STELLANTIS_GAS_THRSLD);
+      gas_pressed = GET_BYTE(to_push, 5) > 0;  // FIXME: this signal is suspect, nonzero on *some* vehicles/drives
     }
 
     // exit controls on rising edge of brake press
