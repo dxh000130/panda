@@ -89,7 +89,7 @@ class TestStellantisSafety(common.PandaSafetyTest):
     values = {"CANCEL": cancel, "SET_PLUS": _set,
               "RESUME": resume, "COUNTER": self.cnt_acc_buttons % 16}
     self.__class__.cnt_acc_buttons += 1
-    return self.packer.make_can_msg_panda("ACC_BUTTONS", 0, values)
+    return self.packer.make_can_msg_panda("ACC_BUTTONS", 2, values)
 
   def test_steer_safety_check(self):
     for enabled in [0, 1]:

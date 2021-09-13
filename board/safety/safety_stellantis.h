@@ -19,7 +19,7 @@ const int STELLANTIS_GAS_THRSLD = 30;               // 7% more than 2m/s
 #define MSG_ACC_BUTTONS     0xB1  // Cruise control buttons
 #define MSG_DASM_HUD        0xFA  // LKAS HUD and auto headlight control from DASM
 
-const CanMsg STELLANTIS_TX_MSGS[] = {{MSG_DASM_LKAS, 0, 8}, {MSG_DASM_HUD, 0, 8}, {MSG_ACC_BUTTONS, 2, 8}};
+const CanMsg STELLANTIS_TX_MSGS[] = {{MSG_DASM_LKAS, 0, 8}, {MSG_DASM_HUD, 0, 8}, {MSG_ACC_BUTTONS, 2, 3}};
 
 AddrCheckStruct stellantis_addr_checks[] = {
   {.msg = {{MSG_EPS_2, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}, { 0 }, { 0 }}},
