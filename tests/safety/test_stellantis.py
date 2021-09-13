@@ -28,7 +28,6 @@ MSG_DASM_HUD = 0xFA       # LKAS HUD and auto headlight control from DASM
 class TestStellantisSafety(common.PandaSafetyTest):
   cnt_eps_1 = 0
   cnt_abs_1 = 0
-  cnt_tps_1 = 0
   cnt_wheel_speeds = 0
   cnt_dasm_acc = 0
   cnt_dasm_lkas = 0
@@ -64,8 +63,7 @@ class TestStellantisSafety(common.PandaSafetyTest):
 
   # Driver throttle input
   def _gas_msg(self, gas):
-    values = {"THROTTLE_POSITION": gas, "COUNTER": self.cnt_tps_1 % 16}
-    self.__class__.cnt_tps_1 += 1
+    values = {"THROTTLE_POSITION": gas}
     return self.packer.make_can_msg_panda("TPS_1", 0, values)
 
   # ACC engagement status
@@ -139,10 +137,10 @@ class TestStellantisSafety(common.PandaSafetyTest):
         t *= -sign
         self.safety.set_torque_driver(t, t)
         self._set_prev_torque(MAX_STEER * sign)
-        self.assertTrue(self._tx(self._hca_01_msg(MAX_STEER * sign)))
+        self.assertTrue(self._tx(self._dasm_lkas_msg(MAX_STEER * sign)))
 
       self.safety.set_torque_driver(DRIVER_TORQUE_ALLOWANCE + 1, DRIVER_TORQUE_ALLOWANCE + 1)
-      self.assertFalse(self._tx(self._hca_01_msg(-MAX_STEER)))
+      self.assertFalse(self._tx(self._dasm_lkas_msg(-MAX_STEER)))
 
     # spot check some individual cases
     for sign in [-1, 1]:
@@ -151,20 +149,20 @@ class TestStellantisSafety(common.PandaSafetyTest):
       delta = 1 * sign
       self._set_prev_torque(torque_desired)
       self.safety.set_torque_driver(-driver_torque, -driver_torque)
-      self.assertTrue(self._tx(self._hca_01_msg(torque_desired)))
+      self.assertTrue(self._tx(self._dasm_lkas_msg(torque_desired)))
       self._set_prev_torque(torque_desired + delta)
       self.safety.set_torque_driver(-driver_torque, -driver_torque)
-      self.assertFalse(self._tx(self._hca_01_msg(torque_desired + delta)))
+      self.assertFalse(self._tx(self._dasm_lkas_msg(torque_desired + delta)))
 
       self._set_prev_torque(MAX_STEER * sign)
       self.safety.set_torque_driver(-MAX_STEER * sign, -MAX_STEER * sign)
-      self.assertTrue(self._tx(self._hca_01_msg((MAX_STEER - MAX_RATE_DOWN) * sign)))
+      self.assertTrue(self._tx(self._dasm_lkas_msg((MAX_STEER - MAX_RATE_DOWN) * sign)))
       self._set_prev_torque(MAX_STEER * sign)
       self.safety.set_torque_driver(-MAX_STEER * sign, -MAX_STEER * sign)
-      self.assertTrue(self._tx(self._hca_01_msg(0)))
+      self.assertTrue(self._tx(self._dasm_lkas_msg(0)))
       self._set_prev_torque(MAX_STEER * sign)
       self.safety.set_torque_driver(-MAX_STEER * sign, -MAX_STEER * sign)
-      self.assertFalse(self._tx(self._hca_01_msg((MAX_STEER - MAX_RATE_DOWN + 1) * sign)))
+      self.assertFalse(self._tx(self._dasm_lkas_msg((MAX_STEER - MAX_RATE_DOWN + 1) * sign)))
 
   def test_realtime_limits(self):
     self.safety.set_controls_allowed(True)
@@ -233,18 +231,15 @@ class TestStellantisSafety(common.PandaSafetyTest):
       self.__class__.cnt_eps_2 += 1
       self.__class__.cnt_abs_1 += 1
       self.__class__.cnt_dasm_lkas += 1
-      self.__class__.cnt_tps_1 += 1
       if i < MAX_WRONG_COUNTERS:
         self.safety.set_controls_allowed(1)
         self._rx(self._eps_msg(0))
         self._rx(self._brake_msg(False))
         self._rx(self._pcm_status_msg(True))
-        self._rx(self._gas_msg(0))
       else:
         self.assertFalse(self._rx(self._eps_msg(0)))
         self.assertFalse(self._rx(self._brake_msg(False)))
         self.assertFalse(self._rx(self._pcm_status_msg(True)))
-        self.assertFalse(self._rx(self._gas_msg(0)))
         self.assertFalse(self.safety.get_controls_allowed())
 
     # restore counters for future tests with a couple of good messages
