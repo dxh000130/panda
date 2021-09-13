@@ -23,8 +23,8 @@ const CanMsg STELLANTIS_TX_MSGS[] = {{MSG_DASM_LKAS, 0, 8}, {MSG_DASM_HUD, 0, 8}
 
 AddrCheckStruct stellantis_addr_checks[] = {
   {.msg = {{MSG_EPS_2, 0, 8, .check_checksum = false, .max_counter = 15U, .expected_timestep = 10000U}, { 0 }, { 0 }}},
-  {.msg = {{MSG_ABS_1, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U}, { 0 }, { 0 }}},
-  {.msg = {{MSG_TPS_1, 0, 8, .check_checksum = false, .max_counter = 15U,  .expected_timestep = 20000U}, { 0 }, { 0 }}},
+  {.msg = {{MSG_ABS_1, 0, 8, .check_checksum = false, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
+  {.msg = {{MSG_TPS_1, 0, 8, .check_checksum = false, .max_counter = 0U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{MSG_WHEEL_SPEEDS, 0, 8, .check_checksum = false, .max_counter = 0U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{MSG_DASM_ACC, 0, 8, .check_checksum = false, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
 };
