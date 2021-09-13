@@ -6,7 +6,7 @@ from panda.tests.safety import libpandasafety_py
 import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda, MAX_WRONG_COUNTERS
 
-# TODO: these rates almost certainly need to change
+# TODO: Limits and rates and tolerances are unverified/untested
 MAX_RATE_UP = 5
 MAX_RATE_DOWN = 10
 MAX_STEER = 255
