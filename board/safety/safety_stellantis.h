@@ -2,10 +2,10 @@
 const int STELLANTIS_MAX_STEER = 255;               // TODO: verify
 const int STELLANTIS_MAX_RT_DELTA = 93;             // 5 max rate up * 50Hz send rate * 250000 RT interval / 1000000 = 62 ; 62 * 1.5 for safety pad = 93
 const uint32_t STELLANTIS_RT_INTERVAL = 250000;     // 250ms between real time checks
-const int STELLANTIS_MAX_RATE_UP = 5;
-const int STELLANTIS_MAX_RATE_DOWN = 10;
-const int STELLANTIS_DRIVER_TORQUE_ALLOWANCE = 80;
-const int STELLANTIS_DRIVER_TORQUE_FACTOR = 3;
+const int STELLANTIS_MAX_RATE_UP = 5;               // observed up to 5 up from factory LKAS
+const int STELLANTIS_MAX_RATE_DOWN = 10;            // observed up to 50 down from factory LKAS
+const int STELLANTIS_DRIVER_TORQUE_ALLOWANCE = 80;  // TODO: verify suitability
+const int STELLANTIS_DRIVER_TORQUE_FACTOR = 3;      // TODO: verify suitability
 
 // Safety-relevant CAN messages for the Stellantis 5th gen RAM (DT) platform
 #define MSG_EPS_2           0x31  // EPS driver input torque and angle-change rate
