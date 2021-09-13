@@ -97,9 +97,9 @@ class TestStellantisSafety(common.PandaSafetyTest):
         self.safety.set_controls_allowed(enabled)
         self._set_prev_torque(t)
         if abs(t) > MAX_STEER or (not enabled and abs(t) > 0):
-          self.assertFalse(self._tx(self._eps_msg(t)))
+          self.assertFalse(self._tx(self._torque_msg(t)))
         else:
-          self.assertTrue(self._tx(self._eps_msg(t)), msg=f"enabled: {enabled}, t: {t}")
+          self.assertTrue(self._tx(self._torque_msg(t)), msg=f"enabled: {enabled}, t: {t}")
 
   def test_spam_cancel_safety_check(self):
     self.safety.set_controls_allowed(0)
