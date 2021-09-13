@@ -207,9 +207,6 @@ class TestStellantisSafety(common.PandaSafetyTest):
 
   def test_rx_hook(self):
     # checksum checks
-    # TODO: Would be ideal to check ESP_19 as well, but it has no checksum
-    # or counter, and I'm not sure if we can easily validate Panda's simple
-    # temporal reception-rate check here.
     for msg in [MSG_EPS_2, MSG_ABS_1, MSG_DASM_ACC, MSG_TPS_1]:
       self.safety.set_controls_allowed(1)
       if msg == MSG_EPS_2:
