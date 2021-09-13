@@ -207,35 +207,34 @@ class TestStellantisSafety(common.PandaSafetyTest):
 
   def test_rx_hook(self):
     # checksum checks
-    # TODO: fix this section
-    #for msg in [MSG_EPS_2, MSG_ABS_1, MSG_DASM_ACC]:
-    #  self.safety.set_controls_allowed(1)
-    #  if msg == MSG_EPS_2:
-    #    to_push = self._eps_msg(0)
-    #  if msg == MSG_ABS_1:
-    #    to_push = self._brake_msg(False)
-    #  if msg == MSG_DASM_ACC:
-    #    to_push = self._pcm_status_msg(True)
-    #  self.assertTrue(self._rx(to_push))
-    #  to_push[0].RDHR ^= 0xFF
-    #  self.assertFalse(self._rx(to_push))
-    #  self.assertFalse(self.safety.get_controls_allowed())
+    for msg in [MSG_EPS_2, MSG_ABS_1, MSG_DASM_ACC]:
+      self.safety.set_controls_allowed(1)
+      if msg == MSG_EPS_2:
+        to_push = self._eps_msg(0)
+      if msg == MSG_ABS_1:
+        to_push = self._brake_msg(False)
+      if msg == MSG_DASM_ACC:
+        to_push = self._pcm_status_msg(True)
+      self.assertTrue(self._rx(to_push))
+      to_push[0].RDHR ^= 0xFF
+      self.assertFalse(self._rx(to_push))
+      self.assertFalse(self.safety.get_controls_allowed())
 
     # counter
     # reset wrong_counters to zero by sending valid messages
     for i in range(MAX_WRONG_COUNTERS + 1):
       self.__class__.cnt_eps_2 += 1
       self.__class__.cnt_abs_1 += 1
-      self.__class__.cnt_dasm_lkas += 1
+      self.__class__.cnt_dasm_acc += 1
       if i < MAX_WRONG_COUNTERS:
         self.safety.set_controls_allowed(1)
         self._rx(self._eps_msg(0))
         self._rx(self._brake_msg(False))
-        self._rx(self._dasm_lkas_msg(True))
+        self._rx(self._pcm_status_msg(True))
       else:
         self.assertFalse(self._rx(self._eps_msg(0)))
         self.assertFalse(self._rx(self._brake_msg(False)))
-        self.assertFalse(self._rx(self._dasm_lkas_msg(True)))
+        self.assertFalse(self._rx(self._pcm_status_msg(True)))
         self.assertFalse(self.safety.get_controls_allowed())
 
     # restore counters for future tests with a couple of good messages
@@ -243,7 +242,7 @@ class TestStellantisSafety(common.PandaSafetyTest):
       self.safety.set_controls_allowed(1)
       self._rx(self._eps_msg(0))
       self._rx(self._brake_msg(False))
-      self._rx(self._dasm_lkas_msg(True))
+      self._rx(self._pcm_status_msg(True))
     self.assertTrue(self.safety.get_controls_allowed())
 
 
