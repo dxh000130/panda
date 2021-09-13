@@ -177,21 +177,21 @@ class TestStellantisSafety(common.PandaSafetyTest):
       self.assertTrue(self._tx(self._torque_msg(sign * (MAX_RT_DELTA + 1))))
 
   def test_torque_measurements(self):
-    self._rx(self._eps_2_msg(50))
-    self._rx(self._eps_2_msg(-50))
-    self._rx(self._eps_2_msg(0))
-    self._rx(self._eps_2_msg(0))
-    self._rx(self._eps_2_msg(0))
-    self._rx(self._eps_2_msg(0))
+    self._rx(self._eps_msg(50))
+    self._rx(self._eps_msg(-50))
+    self._rx(self._eps_msg(0))
+    self._rx(self._eps_msg(0))
+    self._rx(self._eps_msg(0))
+    self._rx(self._eps_msg(0))
 
     self.assertEqual(-50, self.safety.get_torque_driver_min())
     self.assertEqual(50, self.safety.get_torque_driver_max())
 
-    self._rx(self._eps_2_msg(0))
+    self._rx(self._eps_msg(0))
     self.assertEqual(0, self.safety.get_torque_driver_max())
     self.assertEqual(-50, self.safety.get_torque_driver_min())
 
-    self._rx(self._eps_2_msg(0))
+    self._rx(self._eps_msg(0))
     self.assertEqual(0, self.safety.get_torque_driver_max())
     self.assertEqual(0, self.safety.get_torque_driver_min())
 
