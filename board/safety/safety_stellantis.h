@@ -83,10 +83,10 @@ static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
     // Measured eps torque
     if (addr == MSG_EPS_2) {
-      int torque_meas_new = (((GET_BYTE(to_push, 0) & 0x15U) << 8) | GET_BYTE(to_push, 1)) - 3072U;
+      int torque_driver_new = (((GET_BYTE(to_push, 0) & 0x15U) << 8) | GET_BYTE(to_push, 1)) - 3072U;
 
       // update array of samples
-      update_sample(&torque_meas, torque_meas_new);
+      update_sample(&torque_driver, torque_driver_new);
     }
 
     // enter controls on rising edge of ACC, exit controls on ACC off
