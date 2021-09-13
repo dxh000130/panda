@@ -7,10 +7,10 @@ import panda.tests.safety.common as common
 from panda.tests.safety.common import CANPackerPanda, MAX_WRONG_COUNTERS
 
 # TODO: these rates almost certainly need to change
-MAX_RATE_UP = 10
-MAX_RATE_DOWN = 50
-MAX_STEER = 261
-MAX_RT_DELTA = 112
+MAX_RATE_UP = 5
+MAX_RATE_DOWN = 10
+MAX_STEER = 255
+MAX_RT_DELTA = 93
 RT_INTERVAL = 250000
 
 DRIVER_TORQUE_ALLOWANCE = 80
