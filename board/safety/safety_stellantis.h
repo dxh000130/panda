@@ -1,9 +1,11 @@
 // TODO: haven't validated these numbers, also need to comply with comma safety standards
-const int STELLANTIS_MAX_STEER = 261;
+const int STELLANTIS_MAX_STEER = 255;
 const int STELLANTIS_MAX_RT_DELTA = 112;            // TBD
 const uint32_t STELLANTIS_RT_INTERVAL = 250000;     // 250ms between real time checks
 const int STELLANTIS_MAX_RATE_UP = 5;
 const int STELLANTIS_MAX_RATE_DOWN = 50;
+const int STELLANTIS_DRIVER_TORQUE_ALLOWANCE = 80;
+const int STELLANTIS_DRIVER_TORQUE_FACTOR = 3;
 // TODO: why do we need gas/standstill thresholds? autoresume spam not working yet maybe?
 const int STELLANTIS_GAS_THRSLD = 30;               // 7% more than 2m/s
 const int STELLANTIS_STANDSTILL_THRSLD = 10;        // about 1m/s
