@@ -144,7 +144,7 @@ static int stellantis_tx_hook(CAN_FIFOMailBox_TypeDef *to_send) {
 
   // LKA STEER
   if (addr == MSG_DASM_LKAS) {
-    int desired_torque = ((GET_BYTE(to_send, 0) & 0x7U) << 8) + GET_BYTE(to_send, 1) - 1024U;
+    int desired_torque = ((GET_BYTE(to_send, 1) << 8) | GET_BYTE(to_send, 2)) - 1024U;
     uint32_t ts = microsecond_timer_get();
     bool violation = 0;
 
