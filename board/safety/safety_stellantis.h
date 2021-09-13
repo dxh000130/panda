@@ -83,7 +83,7 @@ static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
     // Measured eps torque
     if (addr == MSG_EPS_2) {
-      int torque_driver_new = (((GET_BYTE(to_push, 0) & 0x15U) << 8) | GET_BYTE(to_push, 1));
+      int torque_driver_new = (((GET_BYTE(to_push, 0) & 0xFU) << 8) | GET_BYTE(to_push, 1));
       torque_driver_new = to_signed(torque_driver_new, 12) + 1024U;
 
       // update array of samples
@@ -104,8 +104,8 @@ static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
     // update speed
     if (addr == MSG_WHEEL_SPEEDS) {
-      int wheel_speed_fl = ((GET_BYTE(to_push, 4) & 0x15U) << 8) | GET_BYTE(to_push, 5);
-      int wheel_speed_fr = ((GET_BYTE(to_push, 6) & 0x15U) << 8) | GET_BYTE(to_push, 7);
+      int wheel_speed_fl = ((GET_BYTE(to_push, 4) & 0xFU) << 8) | GET_BYTE(to_push, 5);
+      int wheel_speed_fr = ((GET_BYTE(to_push, 6) & 0xFU) << 8) | GET_BYTE(to_push, 7);
       // Check for average front speed in excess of 0.3m/s, 1.08km/h
       // DBC speed scale 0.02: 0.3m/s = 15, sum both wheels to compare
       vehicle_moving = (wheel_speed_fl + wheel_speed_fr) > 30;
@@ -118,7 +118,7 @@ static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
     // exit controls on rising edge of brake press
     if (addr == MSG_ABS_1) {
-      brake_pressed = (((GET_BYTE(to_push, 2) & 0x15U) << 8) | GET_BYTE(to_push, 3)) > 0;
+      brake_pressed = (((GET_BYTE(to_push, 2) & 0xFU) << 8) | GET_BYTE(to_push, 3)) > 0;
       if (brake_pressed && (!brake_pressed_prev || vehicle_moving)) {
         controls_allowed = 0;
       }
