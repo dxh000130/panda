@@ -117,7 +117,7 @@ static int stellantis_rx_hook(CAN_FIFOMailBox_TypeDef *to_push) {
 
     // exit controls on rising edge of brake press
     if (addr == MSG_ABS_1) {
-      brake_pressed = (GET_BYTE(to_push, 0) & 0x7) == 5;
+      brake_pressed = (((GET_BYTE(to_push, 2) & 0x15U) << 8) | GET_BYTE(to_push, 3)) > 0;
       if (brake_pressed && (!brake_pressed_prev || vehicle_moving)) {
         controls_allowed = 0;
       }
