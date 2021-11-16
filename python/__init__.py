@@ -151,6 +151,7 @@ class Panda(object):
   FLAG_HONDA_ALT_BRAKE = 1
   FLAG_HONDA_BOSCH_LONG = 2
   FLAG_HYUNDAI_LONG = 4
+  FLAG_VOLKSWAGEN_LONGITUDINAL = 1
 
   def __init__(self, serial=None, claim=True):
     self._serial = serial
@@ -409,7 +410,7 @@ class Panda(object):
 
   def is_dos(self):
     return self.get_type() == Panda.HW_TYPE_DOS
-  
+
   def is_red(self):
     return self.get_type() == Panda.HW_TYPE_RED_PANDA
 

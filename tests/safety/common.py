@@ -439,5 +439,5 @@ class PandaSafetyTest(PandaSafetyTestBase):
       for addr, bus in tx_msgs:
         msg = make_msg(bus, addr)
         self.safety.set_controls_allowed(1)
-        self.assertFalse(self._tx(msg))
+        self.assertFalse(self._tx(msg), msg=f"wrong msg transmit, bus {bus} addr {hex(addr)}")
 
