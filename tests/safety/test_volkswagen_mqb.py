@@ -38,6 +38,8 @@ class TestVolkswagenMqbSafety(common.PandaSafetyTest):
   cnt_motor_20 = 0
   cnt_hca_01 = 0
   cnt_gra_acc_01 = 0
+  cnt_acc_06 = 0
+  cnt_acc_07 = 0
 
   STANDSTILL_THRESHOLD = 1
   RELAY_MALFUNCTION_ADDR = MSG_HCA_01
@@ -97,6 +99,18 @@ class TestVolkswagenMqbSafety(common.PandaSafetyTest):
               "GRA_Tip_Wiederaufnahme": resume, "COUNTER": self.cnt_gra_acc_01 % 16}
     self.__class__.cnt_gra_acc_01 += 1
     return self.packer.make_can_msg_panda("GRA_ACC_01", 0, values)
+
+  # Acceleration request to drivetrain coordinator
+  def _acc_06_msg(self, accel):
+    values = {"ACC_Sollbeschleunigung_02": accel, "COUNTER": self.cnt_acc_06 % 16}
+    self.__class__.cnt_acc_06 += 1
+    return self.packer.make_can_msg_panda("ACC_06", 0, values)
+
+  # Acceleration request to drivetrain coordinator
+  def _acc_07_msg(self, accel):
+    values = {"ACC_Sollbeschleunigung_01": accel, "COUNTER": self.cnt_acc_07 % 16}
+    self.__class__.cnt_acc_07 += 1
+    return self.packer.make_can_msg_panda("ACC_07", 0, values)
 
   def test_steer_safety_check(self):
     for enabled in [0, 1]:
@@ -254,7 +268,7 @@ class TestVolkswagenMqbSafety(common.PandaSafetyTest):
 
 
 class TestVolkswagenMqbStockSafety(TestVolkswagenMqbSafety):
-  TX_MSGS = [[MSG_HCA_01, 0], [MSG_GRA_ACC_01, 0], [MSG_GRA_ACC_01, 2], [MSG_LDW_02, 0]]
+  TX_MSGS = [[MSG_HCA_01, 0], [MSG_LDW_02, 0], [MSG_GRA_ACC_01, 0], [MSG_GRA_ACC_01, 2]]
   FWD_BLACKLISTED_ADDRS = {2: [MSG_HCA_01, MSG_LDW_02]}
   FWD_BUS_LOOKUP = {0: 2, 2: 0}
 
@@ -275,11 +289,8 @@ class TestVolkswagenMqbStockSafety(TestVolkswagenMqbSafety):
 
 
 class TestVolkswagenMqbLongSafety(TestVolkswagenMqbSafety):
-  cnt_acc_06 = 0
-  cnt_acc_07 = 0
-
   TX_MSGS = [[MSG_HCA_01, 0], [MSG_LDW_02, 0], [MSG_ACC_02, 0], [MSG_ACC_06, 0], [MSG_ACC_07, 0]]
-  FWD_BLACKLISTED_ADDRS = {2: [MSG_HCA_01, MSG_LDW_02, MSG_ACC_02, MSG_ACC_06]}
+  FWD_BLACKLISTED_ADDRS = {2: [MSG_HCA_01, MSG_LDW_02, MSG_ACC_02, MSG_ACC_06, MSG_ACC_07]}
   FWD_BUS_LOOKUP = {0: 2, 2: 0}
 
   def setUp(self):
@@ -287,18 +298,6 @@ class TestVolkswagenMqbLongSafety(TestVolkswagenMqbSafety):
     self.safety = libpandasafety_py.libpandasafety
     self.safety.set_safety_hooks(Panda.SAFETY_VOLKSWAGEN_MQB, Panda.FLAG_VOLKSWAGEN_LONGITUDINAL)
     self.safety.init_tests()
-
-  # Acceleration request to drivetrain coordinator
-  def _acc_06_msg(self, accel):
-    values = {"ACC_Sollbeschleunigung_02": accel, "COUNTER": self.cnt_acc_06 % 16}
-    self.__class__.cnt_acc_06 += 1
-    return self.packer.make_can_msg_panda("ACC_06", 0, values)
-
-  # Acceleration request to drivetrain coordinator
-  def _acc_07_msg(self, accel):
-    values = {"ACC_Sollbeschleunigung_01": accel, "COUNTER": self.cnt_acc_07 % 16}
-    self.__class__.cnt_acc_07 += 1
-    return self.packer.make_can_msg_panda("ACC_07", 0, values)
 
   # stock cruise controls are entirely bypassed under openpilot longitudinal control
   def test_disable_control_allowed_from_cruise(self):
