@@ -69,6 +69,7 @@ int volkswagen_acc_accel_msg_1 = 0;
 int volkswagen_acc_accel_msg_2 = 0;
 int volkswagen_acc_hud_msg_1 = 0;
 int volkswagen_acc_hud_msg_2 = 0;
+int volkswagen_tsk_msg = 0;
 uint8_t volkswagen_crc8_lut_8h2f[256]; // Static lookup table for CRC8 poly 0x2F, aka 8H2F/AUTOSAR
 
 
@@ -147,6 +148,7 @@ static const addr_checks* volkswagen_mqb_init(int16_t param) {
   volkswagen_acc_accel_msg_2 = MSG_ACC_07;
   volkswagen_acc_hud_msg_1 = MSG_ACC_02;
   volkswagen_acc_hud_msg_2 = MSG_ACC_04;
+  volkswagen_tsk_msg = MSG_TSK_06;
   gen_crc_lookup_table(0x2F, volkswagen_crc8_lut_8h2f);
   return &volkswagen_mqb_rx_checks;
 }
@@ -444,8 +446,12 @@ static int volkswagen_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
 
   switch (bus_num) {
     case 0:
-      // Forward all traffic from the Extended CAN onward
-      bus_fwd = 2;
+      if (volkswagen_longitudinal && (addr == volkswagen_tsk_msg)) {
+        bus_fwd = -1;
+      } else {
+       // Forward all remaining traffic from the gateway to Extended CAN
+        bus_fwd = 2;
+      }
       break;
     case 2:
       if ((addr == volkswagen_torque_msg) || (addr == volkswagen_lane_msg)) {

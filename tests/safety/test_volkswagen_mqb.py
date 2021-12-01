@@ -290,8 +290,8 @@ class TestVolkswagenMqbStockSafety(TestVolkswagenMqbSafety):
 
 
 class TestVolkswagenMqbLongSafety(TestVolkswagenMqbSafety):
-  TX_MSGS = [[MSG_HCA_01, 0], [MSG_LDW_02, 0], [MSG_ACC_02, 0], [MSG_ACC_04, 0], [MSG_ACC_06, 0], [MSG_ACC_07, 0]]
-  FWD_BLACKLISTED_ADDRS = {2: [MSG_HCA_01, MSG_LDW_02, MSG_ACC_02, MSG_ACC_04, MSG_ACC_06, MSG_ACC_07]}
+  TX_MSGS = [[MSG_HCA_01, 0], [MSG_LDW_02, 0], [MSG_ACC_02, 0], [MSG_ACC_04, 0], [MSG_ACC_06, 0], [MSG_ACC_07, 0], [MSG_TSK_06, 2]]
+  FWD_BLACKLISTED_ADDRS = {0: [MSG_TSK_06], 2: [MSG_HCA_01, MSG_LDW_02, MSG_ACC_02, MSG_ACC_04, MSG_ACC_06, MSG_ACC_07]}
   FWD_BUS_LOOKUP = {0: 2, 2: 0}
 
   def setUp(self):
