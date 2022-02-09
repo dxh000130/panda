@@ -10,7 +10,7 @@ from panda.python.uds import UdsClient, MessageTimeoutError, NegativeResponseErr
 if __name__ == "__main__":
   parser = argparse.ArgumentParser()
   parser.add_argument("--debug", action="store_true", help="enable ISO-TP/UDS stack debugging output")
-  parser.add_argument("action", default="show", choices={"show", "enable", "disable"}, help="show or modify current EPS HCA config")
+  parser.add_argument("action", choices={"show", "enable", "disable"}, help="show or modify current EPS HCA config")
   args = parser.parse_args()
 
   panda = Panda()
@@ -64,13 +64,14 @@ if __name__ == "__main__":
     quit()
 
   if args.action in ["enable", "disable"]:
+    print("\nAttempting configuration update")
+    assert(coding_variant == "ZF")  # revisit when we have the APA rack coding bit
     if args.action == "enable":
       new_byte_0 = current_coding_array[0] | 1 << 4
     else:
       new_byte_0 = current_coding_array[0] & ~(1 << 4)
     new_coding = new_byte_0.to_bytes(1, "little") + current_coding[1:]
     try:
-      # Unclear why VCDS uses 03/04 instead of 01/02 for ACCESS_TYPE, but we match it
       seed = uds_client.security_access(0x3)  # type: ignore
       key = struct.unpack("!I", seed)[0] + 28183  # yeah, it's like that
       uds_client.security_access(0x4, struct.pack("!I", key))  # type: ignore
@@ -94,8 +95,8 @@ if __name__ == "__main__":
       quit()
     try:
       # Read back result just to make 100% sure everything worked
-      current_coding = uds_client.read_data_by_identifier(0x0600)
-      print("  New coding:  {current_coding}")
+      current_coding = uds_client.read_data_by_identifier(0x0600)  # type: ignore
+      print(f"   New coding:  {current_coding}")
     except (NegativeResponseError, MessageTimeoutError):
       print("Reading back updated coding failed!")
       quit()
