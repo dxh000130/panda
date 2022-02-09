@@ -73,7 +73,7 @@ if __name__ == "__main__":
     try:
       # Programming date and tester number must be written before making
       # a change, or write to 0x0600 will fail with request sequence error
-      prog_date = bytes(date.today().strftime("%y%m%d"), "utf-8")
+      prog_date = b'\x22\x02\x08'
       uds_client.write_data_by_identifier(DATA_IDENTIFIER_TYPE.PROGRAMMING_DATE, prog_date)
       # Encoding on 0xF198 is unclear, it contains the workshop code in the
       # last two bytes, but not the VZ/importer or tester serial number
@@ -86,3 +86,5 @@ if __name__ == "__main__":
       print("Writing new configuration failed!")
       quit()
     print("EPS configuration successfully updated")
+
+
