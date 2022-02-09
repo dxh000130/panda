@@ -2,6 +2,8 @@
 
 import argparse
 import struct
+import time
+from datetime import date
 from panda import Panda
 from panda.python.uds import UdsClient, MessageTimeoutError, NegativeResponseError, SESSION_TYPE, DATA_IDENTIFIER_TYPE
 
@@ -22,7 +24,6 @@ if __name__ == "__main__":
     print("Timeout opening session with EPS")
     quit()
 
-  odx_ver = ""
   try:
     hw_pn = uds_client.read_data_by_identifier(DATA_IDENTIFIER_TYPE.VEHICLE_MANUFACTURER_ECU_HARDWARE_NUMBER).decode("utf-8")
     sw_pn = uds_client.read_data_by_identifier(DATA_IDENTIFIER_TYPE.VEHICLE_MANUFACTURER_SPARE_PART_NUMBER).decode("utf-8")
@@ -56,19 +57,32 @@ if __name__ == "__main__":
       print("Configuration changes not yet supported on this EPS!")
       quit()
     current_coding_array = struct.unpack("!4B", current_coding)
-    if(args.action == "enable"):
+    if args.action == "enable":
       new_byte_0 = current_coding_array[0] | 1<<4
     else:
       new_byte_0 = current_coding_array[0] & ~(1<<4)
     new_coding = new_byte_0.to_bytes(1, "little") + current_coding[1:]
-    print(f"\n   New coding:   {new_coding}")
-    #try:
-    seed = uds_client.security_access(0x3)
-    key = struct.unpack("!I", seed)[0] + 28183  # yeah, it's like that
-    uds_client.security_access(0x4, struct.pack("!I", key))
-    uds_client.write_data_by_identifier(0x0600, new_coding)
-    print("EPS configuration successfully updated!")
-    #except NegativeResponseError:
-    #  print("Error changing config")
-    #except MessageTimeoutError:
-    #  print("Timeout changing config")
+    print(f"   New coding:   {new_coding}")
+    try:
+      seed = uds_client.security_access(0x3)
+      key = struct.unpack("!I", seed)[0] + 28183  # yeah, it's like that
+      uds_client.security_access(0x4, struct.pack("!I", key))
+    except (NegativeResponseError, MessageTimeoutError):
+      print("Security access failed!")
+      quit()
+    try:
+      # Programming date and tester number must be written before making
+      # a change, or write to 0x0600 will fail with request sequence error
+      prog_date = bytes(date.today().strftime("%y%m%d"), "utf-8")
+      uds_client.write_data_by_identifier(DATA_IDENTIFIER_TYPE.PROGRAMMING_DATE, prog_date)
+      # Encoding on 0xF198 is unclear, it contains the workshop code in the
+      # last two bytes, but not the VZ/importer or tester serial number
+      # Can't seem to read it back, but we can read the calibration tester,
+      # so fib a little and say that same tester did the repair
+      tester_num = uds_client.read_data_by_identifier(DATA_IDENTIFIER_TYPE.CALIBRATION_REPAIR_SHOP_CODE_OR_CALIBRATION_EQUIPMENT_SERIAL_NUMBER)
+      uds_client.write_data_by_identifier(DATA_IDENTIFIER_TYPE.REPAIR_SHOP_CODE_OR_TESTER_SERIAL_NUMBER, tester_num)
+      uds_client.write_data_by_identifier(0x0600, new_coding)
+    except (NegativeResponseError, MessageTimeoutError):
+      print("Writing new configuration failed!")
+      quit()
+    print("EPS configuration successfully updated")
