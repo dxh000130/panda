@@ -96,7 +96,7 @@ if __name__ == "__main__":
     try:
       # Read back result just to make 100% sure everything worked
       current_coding_text = uds_client.read_data_by_identifier(0x0600).hex()  # type: ignore
-      print(f"   New coding:   {current_coding}")
+      print(f"   New coding:   {current_coding_text}")
     except (NegativeResponseError, MessageTimeoutError):
       print("Reading back updated coding failed!")
       quit()
