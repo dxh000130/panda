@@ -78,7 +78,7 @@ if __name__ == "__main__":
       # Encoding on 0xF198 is unclear, it contains the workshop code in the
       # last two bytes, but not the VZ/importer or tester serial number
       # Can't seem to read it back, but we can read the calibration tester,
-      # so fib a little and say that same tester did the repair
+      # so fib a little and say that same tester did the programming
       tester_num = uds_client.read_data_by_identifier(DATA_IDENTIFIER_TYPE.CALIBRATION_REPAIR_SHOP_CODE_OR_CALIBRATION_EQUIPMENT_SERIAL_NUMBER)
       uds_client.write_data_by_identifier(DATA_IDENTIFIER_TYPE.REPAIR_SHOP_CODE_OR_TESTER_SERIAL_NUMBER, tester_num)
       uds_client.write_data_by_identifier(0x0600, new_coding)
