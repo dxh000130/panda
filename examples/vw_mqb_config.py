@@ -24,14 +24,15 @@ if __name__ == "__main__":
     print("Timeout opening session with EPS")
     quit()
 
+  odx_file, current_coding = None, None
   try:
     hw_pn = uds_client.read_data_by_identifier(DATA_IDENTIFIER_TYPE.VEHICLE_MANUFACTURER_ECU_HARDWARE_NUMBER).decode("utf-8")
     sw_pn = uds_client.read_data_by_identifier(DATA_IDENTIFIER_TYPE.VEHICLE_MANUFACTURER_SPARE_PART_NUMBER).decode("utf-8")
     sw_ver = uds_client.read_data_by_identifier(DATA_IDENTIFIER_TYPE.VEHICLE_MANUFACTURER_ECU_SOFTWARE_VERSION_NUMBER).decode("utf-8")
     component = uds_client.read_data_by_identifier(DATA_IDENTIFIER_TYPE.SYSTEM_NAME_OR_ENGINE_TYPE).decode("utf-8")
     odx_file = uds_client.read_data_by_identifier(DATA_IDENTIFIER_TYPE.ODX_FILE).decode("utf-8")
-    odx_ver = uds_client.read_data_by_identifier(0xF1A2).decode("utf-8")
-    current_coding = uds_client.read_data_by_identifier(0x0600)
+    odx_ver = uds_client.read_data_by_identifier(0xF1A2).decode("utf-8")  # type: ignore
+    current_coding = uds_client.read_data_by_identifier(0x0600)  # type: ignore
     coding_text = current_coding.hex()
 
     print("\nDiagnostic data from EPS controller\n")
@@ -48,25 +49,31 @@ if __name__ == "__main__":
     print("Timeout fetching data from EPS")
     quit()
 
-  if args.action in ["enable", "disable"]:
-    print("")
-    if odx_file != "EV_SteerAssisMQB\x00":
-      # EV_SteerAssisMQB covers the majority of MQB racks (EPS_MQB_ZFLS)
-      # APA racks (MQB_PP_APA) have a different coding layout, which should
-      # be easy to support once we identify the specific config bit
-      print("Configuration changes not yet supported on this EPS!")
-      quit()
+  coding_variant, current_coding_array = None, None
+  # EV_SteerAssisMQB covers the majority of MQB racks (EPS_MQB_ZFLS)
+  # APA racks (MQB_PP_APA) have a different coding layout, which should
+  # be easy to support once we identify the specific config bit
+  if odx_file == "EV_SteerAssisMQB\x00":
+    coding_variant = "ZF"
     current_coding_array = struct.unpack("!4B", current_coding)
+    hca_enabled = (current_coding_array[0] & 1 << 4 != 0)
+    hca_text = ("DISABLED", "ENABLED")[hca_enabled]
+    print(f"   Lane Assist:  {hca_text}")
+  else:
+    print("Configuration changes not yet supported on this EPS!")
+    quit()
+
+  if args.action in ["enable", "disable"]:
     if args.action == "enable":
-      new_byte_0 = current_coding_array[0] | 1<<4
+      new_byte_0 = current_coding_array[0] | 1 << 4
     else:
-      new_byte_0 = current_coding_array[0] & ~(1<<4)
+      new_byte_0 = current_coding_array[0] & ~(1 << 4)
     new_coding = new_byte_0.to_bytes(1, "little") + current_coding[1:]
-    print(f"   New coding:   {new_coding}")
     try:
-      seed = uds_client.security_access(0x3)
+      # Unclear why VCDS uses 03/04 instead of 01/02 for ACCESS_TYPE, but we match it
+      seed = uds_client.security_access(0x3)  # type: ignore
       key = struct.unpack("!I", seed)[0] + 28183  # yeah, it's like that
-      uds_client.security_access(0x4, struct.pack("!I", key))
+      uds_client.security_access(0x4, struct.pack("!I", key))  # type: ignore
     except (NegativeResponseError, MessageTimeoutError):
       print("Security access failed!")
       quit()
@@ -81,10 +88,15 @@ if __name__ == "__main__":
       # so fib a little and say that same tester did the programming
       tester_num = uds_client.read_data_by_identifier(DATA_IDENTIFIER_TYPE.CALIBRATION_REPAIR_SHOP_CODE_OR_CALIBRATION_EQUIPMENT_SERIAL_NUMBER)
       uds_client.write_data_by_identifier(DATA_IDENTIFIER_TYPE.REPAIR_SHOP_CODE_OR_TESTER_SERIAL_NUMBER, tester_num)
-      uds_client.write_data_by_identifier(0x0600, new_coding)
+      uds_client.write_data_by_identifier(0x0600, new_coding)  # type: ignore
     except (NegativeResponseError, MessageTimeoutError):
       print("Writing new configuration failed!")
       quit()
+    try:
+      # Read back result just to make 100% sure everything worked
+      current_coding = uds_client.read_data_by_identifier(0x0600)
+      print("  New coding:  {current_coding}")
+    except (NegativeResponseError, MessageTimeoutError):
+      print("Reading back updated coding failed!")
+      quit()
     print("EPS configuration successfully updated")
-
-
